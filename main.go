@@ -29,6 +29,10 @@ func leastScorer(a, b common.Address) int {
 	return -bytes.Compare(a.Bytes(), b.Bytes())
 }
 
+func asciiScorer(a, b common.Address) int {
+	return countHexrangeDigits(a.Bytes(), false) - countHexrangeDigits(b.Bytes(), false)
+}
+
 func ascendingScorer(a, b common.Address) int {
 	return countAscending(a.Bytes(), false) - countAscending(b.Bytes(), false)
 }
@@ -37,6 +41,20 @@ func strictAscendingScorer(a, b common.Address) int {
 	return countAscending(a.Bytes(), true) - countAscending(b.Bytes(), true)
 }
 
+func countHexrangeDigits(data []byte, strict bool) int {
+	count := 0
+	for i := 0; i < 20; i++ {
+		v := data[i]
+		if v >= 32 && v <= 127 {
+			count += 1
+		}
+	}
+	return count
+}
+func toAscii(addr common.Address) string {
+
+	return string(addr.Bytes())
+}
 func countAscending(data []byte, strict bool) int {
 	count := 0
 	var last byte = 0
@@ -68,12 +86,13 @@ var (
 	threads         = flag.Int("threads", 2, "Number of threads to run")
 	contractAddress = flag.Bool("contract", false, "Derive addresses for deployed contracts instead of accounts")
 	maxNonce        = flag.Int("maxnonce", 32, "Maximum nonce value to test when deriving contract addresses")
-	scorers         = StringList{"least", "ascending", "strictAscending"}
-
+	//scorers         = StringList{"least", "ascending", "strictAscending"}
+	scorers    = StringList{"asciiScorer"}
 	scoreFuncs = map[string]addressComparer{
-		"least":           leastScorer,
-		"ascending":       ascendingScorer,
-		"strictAscending": strictAscendingScorer,
+		//		"least":           leastScorer,
+		//		"ascending":       ascendingScorer,
+		//		"strictAscending": strictAscendingScorer,
+		"asciiScorer": asciiScorer,
 	}
 )
 
@@ -106,7 +125,7 @@ func main() {
 	for next := range results {
 		if scoreTest(funcs, bests, next.address) {
 			if *contractAddress {
-				fmt.Printf("%s\t%d\t%d\t%s\n", next.address.Hex(), next.nonce, next.depth, hex.EncodeToString(crypto.FromECDSA(next.privateKey)))
+				fmt.Printf("%s\t%q\t%d\t%d\t%s\n", next.address.Hex(), toAscii(next.address), next.nonce, next.depth, hex.EncodeToString(crypto.FromECDSA(next.privateKey)))
 			} else {
 				fmt.Printf("%s\t%d\t%s\n", next.address.Hex(), next.nonce, hex.EncodeToString(crypto.FromECDSA(next.privateKey)))
 			}
