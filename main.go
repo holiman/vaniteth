@@ -158,10 +158,10 @@ func generateAddresses(out chan<- Result, contracts bool, maxNonce int, maxDepth
 			for i := 0; i < maxNonce; i++ {
 				address := crypto.CreateAddress(contractAddress, uint64(i))
 				out <- Result{address, privateKey, i, 0}
-				for j := 1; j < maxDepth; j++ {
-					address = crypto.CreateAddress(address, 1)
-					out <- Result{address, privateKey, i, j}
-				}
+				//				for j := 1; j < maxDepth; j++ {
+				//					address = crypto.CreateAddress(address, 1)
+				//					out <- Result{address, privateKey, i, j}
+				//				}
 			}
 		} else {
 			out <- Result{contractAddress, privateKey, 0, 0}
