@@ -145,7 +145,7 @@ func generateAddresses(out chan<- Result, contracts bool, maxNonce int, maxDepth
 				}
 			}
 		} else {
-			out <- Result{contractAddress, privateKey, 0}
+			out <- Result{contractAddress, privateKey, 0, 0}
 		}
 	}
 	os.Exit(0)
